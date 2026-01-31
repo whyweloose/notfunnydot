@@ -2,19 +2,20 @@ const fs = require('fs');
 const path = require('path');
 const { Telegraf, Markup } = require('telegraf');
 
-const BOT_TOKEN = process.env.BOT_TOKEN;
+const BOT_TOKEN = '7826581383:AAEhwu2xliX2jOgz3Hzual2uhH8fWWBxprU';
 if (!BOT_TOKEN) {
   console.error('Please set BOT_TOKEN environment variable');
   process.exit(1);
 }
 
-const ADMIN_PASS = process.env.ADMIN_PASS || 'changeme';
-const CHANNELS_FILE = path.join(__dirname, 'channels.json');
-const ADMINS_FILE = path.join(__dirname, 'admins.json');
-const SCENARIOS_FILE = path.join(__dirname, 'scenarios.json');
-const USERS_FILE = path.join(__dirname, 'users.json');
-const PENDING_FILE = path.join(__dirname, 'pendingBroadcasts.json');
-const SETTINGS_FILE = path.join(__dirname, 'settings.json');
+const ADMIN_PASS = 'whyweloose';
+const DATA_DIR = path.join(__dirname, 'data');
+const CHANNELS_FILE = path.join(DATA_DIR, 'channels.json');
+const ADMINS_FILE = path.join(DATA_DIR, 'admins.json');
+const SCENARIOS_FILE = path.join(DATA_DIR, 'scenarios.json');
+const USERS_FILE = path.join(DATA_DIR, 'users.json');
+const PENDING_FILE = path.join(DATA_DIR, 'pendingBroadcasts.json');
+const SETTINGS_FILE = path.join(DATA_DIR, 'settings.json');
 
 function loadChannels() {
   try {
@@ -140,7 +141,7 @@ bot.command('admin', (ctx) => {
   const pass = parts[1];
   if (pass && pass === ADMIN_PASS) {
     addAdmin(ctx.from.id);
-    return ctx.reply('Авторизация успешна. Вы теперь админ бота. Доступны команды: /createscenario, /listscenarios, /removescenario, /setscenario, /createscenario, /addchannel, /listchannels, /removechannel, /broadcast');
+    return ctx.reply('Авторизация успешна. Вы теперь админ бота. Доступны команды: /createscenario, /listscenarios, /removescenario, /setscenario, /addchannel, /listchannels, /removechannel, /broadcast');
   }
   return ctx.reply('Неправильный пароль. Используйте: /admin YOUR_PASS');
 });
@@ -185,8 +186,6 @@ bot.command('listchannels', (ctx) => {
   return ctx.reply(`Каналы сценария ${scenarioName}:\n${list}`);
 });
 
-// Remove channel by index: /removechannel 1
-// Remove channel from scenario: /removechannel scenario INDEX
 bot.command('removechannel', (ctx) => {
   if (!isAdmin(ctx.from.id)) return ctx.reply('Только админы. Авторизуйтесь через /admin');
   const args = ctx.message.text.slice('/removechannel'.length).trim();
@@ -208,7 +207,6 @@ bot.action('confirm', async (ctx) => {
   await ctx.answerCbQuery();
   const userId = ctx.from.id;
 
-  // determine active scenario for user
   const users = loadUsers();
   const settings = loadSettings();
   const userSelected = users[userId] && users[userId].selectedScenario;
